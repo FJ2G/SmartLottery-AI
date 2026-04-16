@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}SmartLottery-AI{% endblock %}</title>
+    <link rel="stylesheet" href="/static/style.css">
+    {% block head %}{% endblock %}
+</head>
+<body>
+
+<!-- Top Nav -->
+<nav class="nav-top" id="topNav">
+    <a href="/" class="nav-logo">SmartLottery<span class="logo-dot">AI</span></a>
+    <div class="nav-center">
+        <a href="/records">历史记录</a>
+        <a href="/stats">统计分析</a>
+        <a href="/recommend">选号推荐</a>
+    </div>
+    <div class="nav-right">
+        <a href="/about">关于</a>
+    </div>
+</nav>
+
+<!-- Main -->
+<main class="main-content">
+    {% block content %}{% endblock %}
+</main>
+
+<!-- Bottom Nav -->
+<nav class="nav-bottom">
+    <a href="/" class="bnav-item"><span class="bnav-icon">◈</span><span class="bnav-label">首页</span></a>
+    <a href="/records" class="bnav-item"><span class="bnav-icon">📋</span><span class="bnav-label">记录</span></a>
+    <a href="/stats" class="bnav-item"><span class="bnav-icon">📊</span><span class="bnav-label">分析</span></a>
+    <a href="/recommend" class="bnav-item"><span class="bnav-icon">🎯</span><span class="bnav-label">推荐</span></a>
+</nav>
+
+<script>
+    // Nav becomes glass on scroll
+    window.addEventListener('scroll', () => {
+        document.getElementById('topNav').classList.toggle('scrolled', window.scrollY > 20);
+    });
+</script>
+</body>
+</html>

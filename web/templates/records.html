@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %}历史记录 - SmartLottery-AI{% endblock %}
+
+{% block head %}{% endblock %}
+
+{% block content %}
+<div class="page-wrap">
+    <div class="page-header">
+        <a href="/" class="back-link">← 返回首页</a>
+        <h1>历史记录</h1>
+        <p>双色球全部开奖数据 · 共 {{ total }} 期</p>
+    </div>
+
+    <div>
+        <div class="filter-bar">
+            <form method="get" action="/records" style="display:flex;gap:0.6rem;align-items:center;flex-wrap:wrap;">
+                <input type="number" name="year" value="{{ year or '' }}" placeholder="年份" min="2003" max="2030">
+                <input type="hidden" name="page" value="1">
+                <button type="submit" class="btn btn-primary">筛选</button>
+                {% if year %}
+                <a href="/records" class="btn btn-secondary">清除</a>
+                {% endif %}
+            </form>
+        </div>
+
+        {% if records %}
+        <div class="record-list">
+            {% for r in records %}
+            <div class="record-row">
+                <div>
+                    <div class="record-period">{{ r.period }}</div>
+                    <div class="record-date">{{ r.draw_date }}</div>
+                </div>
+                <div class="record-balls">
+                    {% for ball in r.red_balls %}
+                    <span class="r-ball-sm">{{ "%02d"|format(ball) }}</span>
+                    {% endfor %}
+                    <span class="ball-plus" style="font-size:0.6rem;margin:0 1px;">+</span>
+                    <span class="b-ball-sm">{{ "%02d"|format(r.blue_ball) }}</span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="pagination">
+            {% if prev_page %}
+            <a href="/records?page={{ prev_page }}{% if year %}&year={{ year }}{% endif %}">‹ 上一页</a>
+            {% else %}
+            <span class="disabled">‹ 上一页</span>
+            {% endif %}
+
+            {% for p in page_range %}
+                {% if p == '...' %}
+                <span style="color:var(--text3);">…</span>
+                {% elif p == page %}
+                <span class="current">{{ p }}</span>
+                {% else %}
+                <a href="/records?page={{ p }}{% if year %}&year={{ year }}{% endif %}">{{ p }}</a>
+                {% endif %}
+            {% endfor %}
+
+            {% if next_page %}
+            <a href="/records?page={{ next_page }}{% if year %}&year={{ year }}{% endif %}">下一页 ›</a>
+            {% else %}
+            <span class="disabled">下一页 ›</span>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

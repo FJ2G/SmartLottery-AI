@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %}统计分析 - SmartLottery-AI{% endblock %}
+
+{% block head %}{% endblock %}
+
+{% block content %}
+<div class="page-wrap">
+    <div class="page-header">
+        <a href="/" class="back-link">← 返回首页</a>
+        <h1>统计分析</h1>
+        <p>多维度趋势数据与可视化</p>
+    </div>
+
+    {% if error %}
+    <div class="error-box">{{ error }}</div>
+    {% endif %}
+
+    {% if data %}
+    <div class="filter-bar">
+        <form method="get" action="/stats" style="display:flex;gap:0.6rem;align-items:center;flex-wrap:wrap;">
+            <label style="font-size:0.82rem;color:var(--text2);">最近</label>
+            <input type="number" name="n" value="{{ n }}" min="10" max="1000" style="width:80px;">
+            <label style="font-size:0.82rem;color:var(--text2);">期</label>
+            <input type="number" name="year" value="{{ year or '' }}" placeholder="年份" style="width:90px;">
+            <button type="submit" class="btn btn-primary">刷新</button>
+        </form>
+    </div>
+
+    <div class="stat-grid">
+        <div class="stat-cell"><div class="val">{{ data.total }}</div><div class="lbl">分析期数</div></div>
+        <div class="stat-cell">
+            <div class="val" style="font-size:1.5rem;">{{ data.latest.period }}</div>
+            <div class="lbl">最新一期</div>
+            <div class="sub">{{ data.latest.draw_date }}</div>
+        </div>
+        <div class="stat-cell">
+            <div style="display:flex;gap:0.2rem;justify-content:center;">
+                {% for ball, _ in data.hot_red[:3] %}
+                <span class="r-ball-sm">{{ "%02d"|format(ball) }}</span>
+                {% endfor %}
+            </div>
+            <div class="lbl">最热红球</div>
+        </div>
+        <div class="stat-cell">
+            <div style="display:flex;gap:0.2rem;justify-content:center;">
+                {% for ball, _ in data.hot_blue[:1] %}
+                <span class="b-ball-sm">{{ "%02d"|format(ball) }}</span>
+                {% endfor %}
+            </div>
+            <div class="lbl">最热蓝球</div>
+        </div>
+    </div>
+
+    <div class="summary-box">
+        <div class="label">统计摘要</div>
+        <table class="summary-table">
+            <tr><td>奇偶比例</td><td>奇数 {{ "%.1f"|format(data.odd_pct) }}% / 偶数 {{ "%.1f"|format(data.even_pct) }}%</td></tr>
+            <tr><td>大小比例</td><td>小号 {{ "%.1f"|format(data.small_pct) }}% / 大号 {{ "%.1f"|format(data.large_pct) }}%</td></tr>
+            <tr><td>区间分布</td><td>一区 {{ "%.1f"|format(data.z1_pct) }}% / 二区 {{ "%.1f"|format(data.z2_pct) }}% / 三区 {{ "%.1f"|format(data.z3_pct) }}%</td></tr>
+        </table>
+    </div>
+
+    <div class="charts-grid">
+        <div class="chart-box"><h3>红球出现频率</h3><img src="data:image/png;base64,{{ charts.red_freq }}" alt="红球频率"></div>
+        <div class="chart-box"><h3>蓝球出现频率</h3><img src="data:image/png;base64,{{ charts.blue_freq }}" alt="蓝球频率"></div>
+        <div class="chart-box"><h3>奇偶分布</h3><img src="data:image/png;base64,{{ charts.odd_even }}" alt="奇偶分布"></div>
+        <div class="chart-box"><h3>红球三区分布</h3><img src="data:image/png;base64,{{ charts.zone }}" alt="三区分布"></div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

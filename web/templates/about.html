@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block title %}关于 - SmartLottery-AI{% endblock %}
+
+{% block head %}{% endblock %}
+
+{% block content %}
+<div class="page-wrap">
+    <div class="page-header">
+        <a href="/" class="back-link">← 返回首页</a>
+        <h1>关于项目</h1>
+        <p>基于历史数据挖掘的双色球趋势分析工具</p>
+    </div>
+
+    <div>
+        <div class="feature-grid">
+            <div class="feature-cell"><h3>📊 数据管理</h3><p>历史开奖数据存储，自动化抓取更新，SQLite 持久化</p></div>
+            <div class="feature-cell"><h3>📈 统计分析</h3><p>号码频率、奇偶分布、大小分布、区间分布，多维度分析</p></div>
+            <div class="feature-cell"><h3>🎯 智能推荐</h3><p>热号、遗漏、共现、K-Means 聚类，多策略加权混合推荐</p></div>
+            <div class="feature-cell"><h3>📉 可视化</h3><p>热力图、折线图、饼图、条形图，多图表在线展示</p></div>
+        </div>
+
+        <div class="summary-box" style="margin-bottom:2rem;">
+            <div class="label">技术栈</div>
+            <div class="tag-list">
+                <span class="tag tag-dark">Python 3.10+</span>
+                <span class="tag tag-outline">FastAPI</span>
+                <span class="tag tag-outline">Rich</span>
+                <span class="tag tag-outline">SQLite</span>
+                <span class="tag tag-outline">scikit-learn</span>
+                <span class="tag tag-outline">matplotlib</span>
+                <span class="tag tag-outline">pandas</span>
+                <span class="tag tag-outline">NumPy</span>
+                <span class="tag tag-outline">Jinja2</span>
+            </div>
+        </div>
+
+        <div class="summary-box">
+            <div class="label">命令行使用</div>
+            <div class="code-block">
+<pre><code><span class="prompt">$</span> <span class="kw">python main.py</span> update-latest    <span class="comment"># 抓取最新数据</span>
+<span class="prompt">$</span> <span class="kw">python main.py</span> record --n 100   <span class="comment"># 查看最近100期</span>
+<span class="prompt">$</span> <span class="kw">python main.py</span> chart all        <span class="comment"># 生成图表</span>
+<span class="prompt">$</span> <span class="kw">python main.py</span> recommend -g 5  <span class="comment"># 生成5组推荐</span>
+<span class="prompt">$</span> <span class="kw">python main.py</span> serve --port 8080 <span class="comment"># 启动 Web</span></code></pre>
+            </div>
+        </div>
+
+        <div class="disclaimer">
+            ⚠ 本工具仅供数据分析与趋势研究，不构成投注建议。彩票为随机事件，请理性购彩，量力而行。
+        </div>
+    </div>
+</div>
+{% endblock %}

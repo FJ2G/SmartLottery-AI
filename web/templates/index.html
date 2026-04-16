@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+
+{% block title %}SmartLottery-AI — 智能双色球分析{% endblock %}
+
+{% block head %}{% endblock %}
+
+{% block content %}
+
+<!-- ═══════════════════════════════════════════════════
+     HERO — 紧凑标题 + 最新开奖
+══════════════════════════════════════════════════════════ -->
+<section class="s s-hero">
+    <div class="s-hero-text">
+        <h1 class="s-hero-title">Smart<br>Lottery<span class="s-accent">AI</span></h1>
+        <div class="s-hero-sub">双色球 · 智能数据分析</div>
+        <div class="s-hero-tagline">把每一次选号，变成一次有数据支撑的理性决策</div>
+        <div style="margin-top:1.5rem;">
+            <button class="s-btn s-btn-white" id="refreshBtn" onclick="refreshData()">↻ 刷新数据</button>
+            <span id="refreshStatus" style="font-size:0.72rem; color:var(--dim); margin-left:0.8rem; display:none;"></span>
+        </div>
+    </div>
+    <div class="s-hero-bottom">
+        <div class="s-ball-row" id="latestBalls">
+            {% if latest and latest.red_balls %}
+                {% for ball in latest.red_balls %}
+                <span class="s-ball s-ball-r">{{ "%02d"|format(ball) }}</span>
+                {% endfor %}
+                <span class="s-plus">+</span>
+                <span class="s-ball s-ball-b">{{ "%02d"|format(latest.blue_ball) }}</span>
+            {% else %}
+                <span style="color:var(--dim);font-size:0.82rem;">暂无数据，请点击刷新</span>
+            {% endif %}
+        </div>
+        <div class="s-hero-ball-info">
+            <span class="s-hero-ball-range" id="latestPeriod">{{ latest.period if latest else '—' }} 期</span>
+            <span class="s-hero-ball-range" id="latestDate" style="font-size:0.65rem; font-weight:400;">{{ latest.draw_date if latest else '' }}</span>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════
+     CARD GRID — 2 columns
+══════════════════════════════════════════════════════════ -->
+<div class="card-grid">
+
+    <!-- Card: 历史记录 -->
+    <a href="/records" class="card">
+        <div class="card-num">全量</div>
+        <div class="card-title">历史记录</div>
+        <div class="card-meta">
+            {% if latest %}
+            <span>2003 — {{ latest.draw_date.year }}</span>
+            <span>{{ latest.period }} 期</span>
+            {% endif %}
+        </div>
+        <div class="card-tags">
+            <span class="card-tag">浏览全部 →</span>
+        </div>
+    </a>
+
+    <!-- Card: 统计分析 -->
+    <a href="/stats" class="card">
+        <div class="card-num" style="color:#e82127;">多维</div>
+        <div class="card-title">统计分析</div>
+        <div class="card-meta">
+            {% if s_data %}
+            <span>{{ s_data.total }} 期分析</span>
+            <span>奇偶 {{ "%.0f"|format(s_data.odd_pct) }}%</span>
+            {% else %}
+            <span>趋势洞察</span>
+            {% endif %}
+        </div>
+        <div class="card-tags">
+            <span class="card-tag">查看图表 →</span>
+        </div>
+    </a>
+
+    <!-- Card: 智能选号 -->
+    <a href="/recommend" class="card">
+        <div class="card-num" style="color:#2563eb;">智能</div>
+        <div class="card-title">选号推荐</div>
+        <div class="card-meta">
+            <span>热号 · 遗漏</span>
+            <span>共现 · 聚类</span>
+        </div>
+        <div class="card-tags">
+            <span class="card-tag">开始推荐 →</span>
+        </div>
+    </a>
+
+    <!-- Card: 关于 -->
+    <a href="/about" class="card">
+        <div class="card-num" style="color:#6b7280;">概览</div>
+        <div class="card-title">关于</div>
+        <div class="card-meta">
+            <span>项目介绍</span>
+            <span>使用说明</span>
+        </div>
+        <div class="card-tags">
+            <span class="card-tag">了解更多 →</span>
+        </div>
+    </a>
+
+</div>
+
+<div class="disclaimer">
+    本工具仅供数据分析与趋势研究之用，不构成任何投注建议。彩票中奖为随机事件，历史数据分析不能预测未来结果。理性购彩，量力而行。
+</div>
+
+<script>
+async function refreshData() {
+    const btn = document.getElementById('refreshBtn');
+    const status = document.getElementById('refreshStatus');
+    btn.disabled = true;
+    btn.textContent = '刷新中...';
+    status.style.display = 'inline';
+    status.textContent = '正在从网络获取最新数据...';
+
+    try {
+        const res = await fetch('/api/update', { method: 'POST' });
+        const data = await res.json();
+
+        if (data.ok) {
+            const ballsEl = document.getElementById('latestBalls');
+            ballsEl.innerHTML = data.red_balls.map(b =>
+                `<span class="s-ball s-ball-r">${String(b).padStart(2, '0')}</span>`
+            ).join('') + '<span class="s-plus">+</span>' +
+                `<span class="s-ball s-ball-b">${String(data.blue_ball).padStart(2, '0')}</span>`;
+            document.getElementById('latestPeriod').textContent = data.period + ' 期';
+            document.getElementById('latestDate').textContent = data.draw_date;
+            status.textContent = '✓ 已更新到 ' + data.period + ' 期';
+        } else {
+            status.textContent = '✗ ' + (data.error || '更新失败');
+        }
+    } catch(e) {
+        status.textContent = '✗ 网络错误';
+    }
+
+    btn.disabled = false;
+    btn.textContent = '↻ 刷新数据';
+    setTimeout(() => { status.style.display = 'none'; }, 4000);
+}
+</script>
+
+{% endblock %}
