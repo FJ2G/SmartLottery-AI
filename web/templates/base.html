@@ -9,17 +9,124 @@
 </head>
 <body>
 
+<!-- Grid Background Overlay -->
+<div class="grid-bg"></div>
+
+<!-- Decorative Wireframe Spheres -->
+<div class="orb orb-1">
+    <svg viewBox="0 0 200 200" class="wireframe-sphere">
+        <defs>
+            <radialGradient id="g1" cx="35%" cy="35%"><stop offset="0%" stop-color="#00D4FF" stop-opacity="0.12"/><stop offset="100%" stop-color="#00D4FF" stop-opacity="0"/></radialGradient>
+        </defs>
+        <circle cx="100" cy="100" r="96" fill="url(#g1)"/>
+        <circle cx="100" cy="100" r="96" fill="none" stroke="#00D4FF" stroke-width="0.5" opacity="0.4"/>
+        <ellipse cx="100" cy="100" rx="96" ry="40" fill="none" stroke="#00D4FF" stroke-width="0.4" opacity="0.3"/>
+        <ellipse cx="100" cy="100" rx="96" ry="60" fill="none" stroke="#00D4FF" stroke-width="0.4" opacity="0.25"/>
+        <ellipse cx="100" cy="100" rx="96" ry="80" fill="none" stroke="#00D4FF" stroke-width="0.4" opacity="0.2"/>
+        <ellipse cx="100" cy="100" rx="40" ry="96" fill="none" stroke="#00D4FF" stroke-width="0.4" opacity="0.3"/>
+        <ellipse cx="100" cy="100" rx="60" ry="96" fill="none" stroke="#00D4FF" stroke-width="0.4" opacity="0.25"/>
+        <ellipse cx="100" cy="100" rx="80" ry="96" fill="none" stroke="#00D4FF" stroke-width="0.4" opacity="0.2"/>
+        <line x1="4" y1="100" x2="196" y2="100" stroke="#00D4FF" stroke-width="0.3" opacity="0.15"/>
+        <line x1="100" y1="4" x2="100" y2="196" stroke="#00D4FF" stroke-width="0.3" opacity="0.15"/>
+        <circle cx="100" cy="4" r="2" fill="#00D4FF" opacity="0.6"/>
+        <circle cx="196" cy="100" r="2" fill="#00D4FF" opacity="0.6"/>
+        <circle cx="100" cy="196" r="2" fill="#00D4FF" opacity="0.6"/>
+        <circle cx="4" cy="100" r="2" fill="#00D4FF" opacity="0.6"/>
+        <circle cx="100" cy="100" r="3" fill="#00D4FF" opacity="0.5"/>
+    </svg>
+</div>
+<div class="orb orb-2">
+    <svg viewBox="0 0 200 200" class="wireframe-sphere wireframe-sphere-red">
+        <defs>
+            <radialGradient id="g2" cx="35%" cy="35%"><stop offset="0%" stop-color="#FF4C4C" stop-opacity="0.1"/><stop offset="100%" stop-color="#FF4C4C" stop-opacity="0"/></radialGradient>
+        </defs>
+        <circle cx="100" cy="100" r="96" fill="url(#g2)"/>
+        <circle cx="100" cy="100" r="96" fill="none" stroke="#FF4C4C" stroke-width="0.5" opacity="0.3"/>
+        <ellipse cx="100" cy="100" rx="96" ry="40" fill="none" stroke="#FF4C4C" stroke-width="0.4" opacity="0.2"/>
+        <ellipse cx="100" cy="100" rx="96" ry="70" fill="none" stroke="#FF4C4C" stroke-width="0.4" opacity="0.15"/>
+        <ellipse cx="100" cy="100" rx="50" ry="96" fill="none" stroke="#FF4C4C" stroke-width="0.4" opacity="0.2"/>
+        <circle cx="100" cy="100" r="2" fill="#FF4C4C" opacity="0.4"/>
+    </svg>
+</div>
+<div class="orb orb-3">
+    <svg viewBox="0 0 200 200" class="wireframe-sphere wireframe-sphere-green">
+        <defs>
+            <radialGradient id="g3" cx="35%" cy="35%"><stop offset="0%" stop-color="#64FFDA" stop-opacity="0.08"/><stop offset="100%" stop-color="#64FFDA" stop-opacity="0"/></radialGradient>
+        </defs>
+        <circle cx="100" cy="100" r="96" fill="url(#g3)"/>
+        <circle cx="100" cy="100" r="96" fill="none" stroke="#64FFDA" stroke-width="0.5" opacity="0.25"/>
+        <ellipse cx="100" cy="100" rx="96" ry="50" fill="none" stroke="#64FFDA" stroke-width="0.4" opacity="0.15"/>
+        <ellipse cx="100" cy="100" rx="60" ry="96" fill="none" stroke="#64FFDA" stroke-width="0.4" opacity="0.15"/>
+        <circle cx="100" cy="100" r="2" fill="#64FFDA" opacity="0.3"/>
+    </svg>
+</div>
+
+<!-- Data Stream Decoration -->
+<div class="data-stream">
+    <div class="data-stream-inner">2023-01-01
+310 万次
+2023-02-15
+0x4A2F
+2023-03-22
+3847.12
+2023-04-08
+#RED:07
+2023-05-19
+概率:0.23
+2023-06-30
+聚类K=5
+2023-07-14
+共现矩阵
+2023-08-25
+频率排名
+2023-09-11
+遗漏追踪
+2023-10-03
+策略混合
+2023-11-18
+智能推荐
+2023-12-29
+数据同步
+2024-01-10
+模型训练
+2024-02-22
+深度分析
+2024-03-15
+趋势预测
+2024-04-28
+模式识别
+2024-05-09
+权重计算
+2024-06-21
+组合评分
+2024-07-05
+历史回测
+2024-08-16
+概率校验
+2024-09-27
+多维统计
+2024-10-11
+蓝球分析
+2024-11-23
+红球热力
+2024-12-31
+年终盘点</div>
+</div>
+
 <!-- Top Nav -->
 <nav class="nav-top" id="topNav">
-    <a href="/" class="nav-logo">SmartLottery<span class="logo-dot">AI</span></a>
-    <div class="nav-center">
-        <a href="/records">历史记录</a>
-        <a href="/stats">统计分析</a>
-        <a href="/recommend">选号推荐</a>
+    <a href="/" class="nav-logo">
+        <span class="logo-smart">Smart </span><span class="logo-ai">LotteryAI</span>
+    </a>
+    <div class="nav-links">
+        <a href="/" class="nav-link" id="navHome">首页</a>
+        <a href="/records" class="nav-link" id="navRecords">记录</a>
+        <a href="/stats" class="nav-link" id="navStats">分析</a>
+        <a href="/recommend" class="nav-link" id="navRecommend">推荐</a>
+        <a href="/verify" class="nav-link" id="navVerify">验证</a>
+        <a href="/about" class="nav-link" id="navAbout">关于</a>
     </div>
-    <div class="nav-right">
-        <a href="/about">关于</a>
-    </div>
+    <span class="nav-date" id="navDate"></span>
 </nav>
 
 <!-- Main -->
@@ -27,19 +134,41 @@
     {% block content %}{% endblock %}
 </main>
 
-<!-- Bottom Nav -->
-<nav class="nav-bottom">
-    <a href="/" class="bnav-item"><span class="bnav-icon">◈</span><span class="bnav-label">首页</span></a>
-    <a href="/records" class="bnav-item"><span class="bnav-icon">📋</span><span class="bnav-label">记录</span></a>
-    <a href="/stats" class="bnav-item"><span class="bnav-icon">📊</span><span class="bnav-label">分析</span></a>
-    <a href="/recommend" class="bnav-item"><span class="bnav-icon">🎯</span><span class="bnav-label">推荐</span></a>
-</nav>
+<!-- Footer -->
+<footer class="footer">
+    <div class="footer-text">
+        本工具仅供数据分析与趋势研究，不构成投注建议。彩票为随机事件，请理性购彩，量力而行。<br>
+        SmartLottery-AI · 数据来源：中国福利彩票官方公告
+    </div>
+</footer>
 
 <script>
-    // Nav becomes glass on scroll
-    window.addEventListener('scroll', () => {
-        document.getElementById('topNav').classList.toggle('scrolled', window.scrollY > 20);
-    });
+    // Set date in nav
+    var now = new Date();
+    var month = String(now.getMonth() + 1).padStart(2, '0');
+    var day = String(now.getDate()).padStart(2, '0');
+    var weekDays = ['周日','周一','周二','周三','周四','周五','周六'];
+    var week = weekDays[now.getDay()];
+    document.getElementById('navDate').textContent = month + '月' + day + '日 ' + week;
+
+    // Highlight active nav tab
+    var path = window.location.pathname;
+    var links = {
+        'navHome': ['/', ''],
+        'navRecords': ['/records'],
+        'navStats': ['/stats'],
+        'navRecommend': ['/recommend'],
+        'navVerify': ['/verify'],
+        'navAbout': ['/about']
+    };
+    for (var id in links) {
+        for (var i = 0; i < links[id].length; i++) {
+            if (path === links[id][i] || (links[id][i] !== '/' && path.startsWith(links[id][i]))) {
+                document.getElementById(id).classList.add('active');
+                break;
+            }
+        }
+    }
 </script>
 </body>
 </html>

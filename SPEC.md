@@ -110,11 +110,43 @@
 ### 4.6 Web 网站 (`web/`) ✅
 
 - 基于 FastAPI + Jinja2 的轻量级 Web 网站
-- 页面：首页、历史记录（分页）、统计分析（含嵌入式图表）、选号推荐（表单）
+- 页面：首页、历史记录（分页）、统计分析（含嵌入式图表）、选号推荐（表单）、号码验证
 - 图表通过 matplotlib 生成并内嵌为 base64 图片，无需额外文件
+- 首页顶部提供「刷新最新」与「全量刷新」快捷操作按钮
 
 > **实现文件**: `web/server.py`（FastAPI 主服务）、`web/routes/`（各页面路由）、`web/templates/`（HTML 模板）
-> **CLI 命令**: `python main.py serve --port 8080`，启动后浏览器访问 `http://localhost:8080`
+> **CLI 命令**: `python main.py serve`（默认监听 0.0.0.0:8080，局域网可访问），本机访问 `http://localhost:8080`，局域网访问 `http://<本机IP>:8080`
+
+### 4.7 号码验证模块 (`web/routes/verify.py`) ✅
+
+号码验证模块提供三个核心功能，用于验证用户号码与实际开奖的吻合程度：
+
+- **中奖比对** ✅
+    - 用户输入6红+1蓝号码，系统比对最新一期开奖结果
+    - 自动判定奖级（一等奖 ~ 六等奖 / 未中奖）
+    - 命中号码高亮显示、未命中号码灰色标记
+    - 计算偏差分数（红球权重70% + 蓝球权重30%，满分100）
+
+- **偏差概率分析** ✅
+    - 用户输入号码，比对最近N期（默认30期）开奖记录
+    - 计算平均红球命中数、蓝球命中率、平均偏差分数
+    - 提供理论概率对比（理论红球平均 ≈1.09，蓝球命中率 ≈6.25%）
+    - 统计各奖级出现频次
+    - 逐期命中详情展示（前20期）
+
+- **推荐号码验证** ✅
+    - 系统自动生成推荐号码（支持 heat/overdue/mixed 等策略）
+    - 将每组推荐号码与最近N期实际开奖比对
+    - 计算每组推荐号码的平均红球命中、偏差分数、最佳奖级
+    - 汇总所有推荐组的整体命中率与最佳奖级
+    - 供用户评估推荐系统的实际命中概率
+
+> **奖级判定规则**: `_check_prize(red_match, blue_match)` — 6红+1蓝→一等奖，6红→二等奖，5红+1蓝→三等奖，5红/4红+1蓝→四等奖，4红/3红+1蓝→五等奖，2红+1蓝/1红+1蓝/仅蓝→六等奖
+>
+> **偏差分数公式**: `_deviation_score(red_match, blue_match)` — `红球命中数 / 6 × 70 + (蓝球命中 ? 30 : 0)`，满分100
+>
+> **实现文件**: `web/routes/verify.py`（验证路由）、`web/templates/verify.html`（验证页面模板）
+> **Web 路由**: `/verify`（页面）、`/verify/check`（中奖比对）、`/verify/deviation`（偏差分析）、`/verify/recommend`（推荐验证）
 
 ---
 
@@ -132,8 +164,8 @@ SmartLottery-AI/
 │   └── exporter.py      # 数据导出器（CSV/JSON）
 ├── web/                # Web 网站（FastAPI）
 │   ├── server.py        # FastAPI 主服务
-│   ├── routes/         # 页面路由
-│   └── templates/       # HTML 模板
+│   ├── routes/         # 页面路由（home/stats/records/recommend/about/verify）
+│   └── templates/       # HTML 模板（含 verify.html）
 ├── models/             # 训练好的模型文件
 ├── data/               # SQLite 数据库存储
 ├── config/             # 配置文件
@@ -180,6 +212,7 @@ SmartLottery-AI/
 | M6 | 多彩种支持            | P3  | ⬜ 待开始  |
 | M7 | GUI 界面（可选）       | P3  | ⬜ 待开始  |
 | M8 | Web 网站           | P2  | ✅ 已完成  |
+| M9 | 号码验证模块          | P1  | ✅ 已完成  |
 
 ---
 

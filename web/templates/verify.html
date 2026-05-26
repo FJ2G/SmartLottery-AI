@@ -1,0 +1,322 @@
+1{% extends "base.html" %}
+
+{% block title %}号码验证 - SmartLottery-AI{% endblock %}
+
+{% block head %}{% endblock %}
+
+{% block content %}
+<div class="page-wrap">
+    <div class="page-header">
+        <a href="/" class="back-link">← 返回首页</a>
+        <h1><span class="hl">验证</span>号码比对</h1>
+        <p>输入号码验证中奖情况 · 偏差概率分析 · 推荐号码命中率验证</p>
+    </div>
+
+    {% if error %}
+    <div class="error-box">{{ error }}</div>
+    {% endif %}
+
+    <!-- 最新一期信息 -->
+    {% if latest %}
+    <div class="card" style="margin-bottom:1.2rem;">
+        <div class="card-section-header">
+            <span class="card-section-title">最新一期开奖</span>
+        </div>
+        <div class="verify-draw-row">
+            <span class="verify-period">{{ latest.period }}期</span>
+            <span class="verify-date">{{ latest.draw_date }}</span>
+            <div class="verify-balls">
+                {% for ball in latest.red_balls %}
+                <span class="s-ball-sm s-ball-r-sm">{{ "%02d"|format(ball) }}</span>
+                {% endfor %}
+                <span class="s-plus-sm">+</span>
+                <span class="s-ball-sm s-ball-b-sm">{{ "%02d"|format(latest.blue_ball) }}</span>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- 功能1：中奖比对 -->
+    <div class="form-card">
+        <div class="card-section-header">
+            <span class="card-section-title">中奖比对</span>
+            <span class="verify-tag">比对最新一期</span>
+        </div>
+        <form method="post" action="/verify/check">
+            <div class="form-row">
+                <label>红球号码</label>
+                <input type="text" name="red_input" placeholder="如: 1,4,7,21,29,30" style="width:200px;">
+                <span style="font-size:0.72rem;color:var(--text3);">6个(1-33)</span>
+            </div>
+            <div class="form-row">
+                <label>蓝球号码</label>
+                <input type="text" name="blue_input" placeholder="如: 1" style="width:80px;">
+                <span style="font-size:0.72rem;color:var(--text3);">1个(1-16)</span>
+            </div>
+            <div class="form-row" style="margin-top:0.3rem;">
+                <button type="submit" class="btn btn-cyan" style="padding:0.6rem 2rem;font-size:0.85rem;">比对中奖</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- 中奖比对结果 -->
+    {% if result %}
+    <div class="card">
+        <div class="verify-result-header">
+            <span class="verify-result-prize {% if result.prize.level > 0 %}prize-win{% else %}prize-lose{% endif %}">
+                {{ result.prize.name }}
+            </span>
+            <span class="verify-result-desc">{{ result.prize.desc }}</span>
+        </div>
+        <div class="verify-compare-grid">
+            <!-- 用户号码 -->
+            <div class="verify-compare-col">
+                <div class="verify-compare-label">你的号码</div>
+                <div class="verify-balls-lg">
+                    {% for ball in result.user_red %}
+                    <span class="s-ball {% if ball in result.matched_red %}s-ball-r{% else %}s-ball-miss{% endif %}">
+                        {{ "%02d"|format(ball) }}
+                    </span>
+                    {% endfor %}
+                    <span class="s-plus">+</span>
+                    <span class="s-ball {% if result.blue_match %}s-ball-b{% else %}s-ball-miss{% endif %}">
+                        {{ "%02d"|format(result.user_blue) }}
+                    </span>
+                </div>
+            </div>
+            <!-- 开奖号码 -->
+            <div class="verify-compare-col">
+                <div class="verify-compare-label">开奖号码</div>
+                <div class="verify-balls-lg">
+                    {% for ball in result.draw_red %}
+                    <span class="s-ball {% if ball in result.matched_red %}s-ball-r{% else %}s-ball-dim{% endif %}">
+                        {{ "%02d"|format(ball) }}
+                    </span>
+                    {% endfor %}
+                    <span class="s-plus">+</span>
+                    <span class="s-ball {% if result.blue_match %}s-ball-b{% else %}s-ball-dim{% endif %}">
+                        {{ "%02d"|format(result.draw_blue) }}
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="verify-stats-row">
+            <div class="verify-stat-item">
+                <span class="verify-stat-val">{{ result.red_match }}</span>
+                <span class="verify-stat-lbl">红球命中</span>
+            </div>
+            <div class="verify-stat-item">
+                <span class="verify-stat-val {% if result.blue_match %}val-cyan{% else %}val-dim{% endif %}">
+                    {% if result.blue_match %}命中{% else %}未中{% endif %}
+                </span>
+                <span class="verify-stat-lbl">蓝球</span>
+            </div>
+            <div class="verify-stat-item">
+                <span class="verify-stat-val">{{ result.dev_score }}</span>
+                <span class="verify-stat-lbl">偏差分数</span>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- 功能2：偏差概率分析 -->
+    <div class="form-card">
+        <div class="card-section-header">
+            <span class="card-section-title">偏差概率分析</span>
+            <span class="verify-tag">比对最近N期</span>
+        </div>
+        <form method="post" action="/verify/deviation">
+            <div class="form-row">
+                <label>红球号码</label>
+                <input type="text" name="red_input" placeholder="如: 1,4,7,21,29,30" style="width:200px;">
+                <span style="font-size:0.72rem;color:var(--text3);">6个(1-33)</span>
+            </div>
+            <div class="form-row">
+                <label>蓝球号码</label>
+                <input type="text" name="blue_input" placeholder="如: 1" style="width:80px;">
+                <span style="font-size:0.72rem;color:var(--text3);">1个(1-16)</span>
+            </div>
+            <div class="form-row">
+                <label>比对期数</label>
+                <input type="number" name="n" value="30" min="10" max="200" style="width:80px;">
+                <span style="font-size:0.72rem;color:var(--text3);">期</span>
+            </div>
+            <div class="form-row" style="margin-top:0.3rem;">
+                <button type="submit" class="btn btn-cyan" style="padding:0.6rem 2rem;font-size:0.85rem;">分析偏差</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- 偏差概率分析结果 -->
+    {% if deviation %}
+    <div class="card">
+        <div class="card-section-header">
+            <span class="card-section-title">偏差分析结果</span>
+            <span style="font-size:0.72rem;color:var(--text3);">比对 {{ deviation.n }} 期</span>
+        </div>
+        <div class="verify-stats-row">
+            <div class="verify-stat-item">
+                <span class="verify-stat-val val-cyan">{{ deviation.avg_red_match }}</span>
+                <span class="verify-stat-lbl">平均红球命中</span>
+                <span class="verify-stat-theo">理论值 {{ deviation.theo_red_avg }}</span>
+            </div>
+            <div class="verify-stat-item">
+                <span class="verify-stat-val val-cyan">{{ deviation.avg_blue_pct }}%</span>
+                <span class="verify-stat-lbl">蓝球命中率</span>
+                <span class="verify-stat-theo">理论值 {{ deviation.theo_blue_pct }}%</span>
+            </div>
+            <div class="verify-stat-item">
+                <span class="verify-stat-val val-green">{{ deviation.avg_dev_score }}</span>
+                <span class="verify-stat-lbl">平均偏差分数</span>
+            </div>
+        </div>
+
+        {% if deviation.prize_counts %}
+        <div class="verify-prize-summary">
+            <span class="verify-prize-label">中奖统计：</span>
+            {% for name, count in deviation.prize_counts.items() %}
+            <span class="verify-prize-tag {% if name == '未中奖' %}tag-lose{% else %}tag-win{% endif %}">
+                {{ name }}: {{ count }}次
+            </span>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- 最近命中详情 -->
+        <div class="verify-detail-list">
+            <div class="verify-detail-header">最近命中详情（前{{ deviation.match_list|length }}期）</div>
+            {% for m in deviation.match_list %}
+            <div class="verify-detail-row">
+                <span class="verify-detail-period">{{ m.period }}期</span>
+                <span class="verify-detail-match">红{{ m.red_match }} {% if m.blue_match %}+蓝中{% else %}+蓝未中{% endif %}</span>
+                <span class="verify-detail-score">{{ m.dev_score }}</span>
+                <span class="verify-detail-prize {% if m.prize.level > 0 %}prize-win{% else %}prize-lose{% endif %}">
+                    {{ m.prize.name }}
+                </span>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- 功能3：推荐号码验证 -->
+    <div class="form-card">
+        <div class="card-section-header">
+            <span class="card-section-title">推荐号码验证</span>
+            <span class="verify-tag">验证系统推荐命中率</span>
+        </div>
+        <p style="font-size:0.72rem;color:var(--text3);margin-bottom:0.8rem;line-height:1.5;">
+            生成推荐号码，然后与最近N期实际开奖比对，验证推荐系统的命中概率。
+        </p>
+        <form method="post" action="/verify/recommend">
+            <div class="form-row">
+                <label>分析期数</label>
+                <input type="number" name="n" value="100" min="10" max="1000" style="width:80px;">
+                <span style="font-size:0.72rem;color:var(--text3);">期</span>
+            </div>
+            <div class="form-row">
+                <label>推荐组数</label>
+                <input type="number" name="generate" value="5" min="1" max="20" style="width:80px;">
+                <span style="font-size:0.72rem;color:var(--text3);">组</span>
+            </div>
+            <div class="form-row">
+                <label>比对期数</label>
+                <input type="number" name="compare_n" value="30" min="10" max="200" style="width:80px;">
+                <span style="font-size:0.72rem;color:var(--text3);">期</span>
+            </div>
+            <div class="form-row">
+                <label>生成策略</label>
+                <select name="strategy" style="min-width:120px;">
+                    <option value="">默认混合</option>
+                    <option value="heat">热号策略</option>
+                    <option value="overdue">遗漏策略</option>
+                    <option value="mixed">混合策略</option>
+                </select>
+            </div>
+            <div class="form-row" style="margin-top:0.3rem;">
+                <button type="submit" class="btn btn-cyan" style="padding:0.6rem 2rem;font-size:0.85rem;">验证推荐</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- 推荐验证结果 -->
+    {% if rec_verify %}
+    <div class="card">
+        <div class="card-section-header">
+            <span class="card-section-title">推荐验证结果</span>
+            <span style="font-size:0.72rem;color:var(--text3);">
+                策略: {{ rec_verify.strategy }} · 比对 {{ rec_verify.compare_n }} 期
+            </span>
+        </div>
+        <div class="verify-stats-row">
+            <div class="verify-stat-item">
+                <span class="verify-stat-val val-cyan">{{ rec_verify.overall_avg_red }}</span>
+                <span class="verify-stat-lbl">平均红球命中</span>
+            </div>
+            <div class="verify-stat-item">
+                <span class="verify-stat-val val-green">{{ rec_verify.overall_avg_dev }}</span>
+                <span class="verify-stat-lbl">平均偏差分数</span>
+            </div>
+            <div class="verify-stat-item">
+                {% if rec_verify.best_prize_level > 0 %}
+                <span class="verify-stat-val val-cyan">第{{ rec_verify.best_prize_level }}等奖</span>
+                {% else %}
+                <span class="verify-stat-val val-dim">未中奖</span>
+                {% endif %}
+                <span class="verify-stat-lbl">最佳奖级</span>
+            </div>
+        </div>
+
+        <!-- 每组推荐号码的验证详情 -->
+        {% for v in rec_verify.verify_results %}
+        <div class="verify-rec-item">
+            <div class="verify-rec-header">
+                <span class="verify-rec-rank">#{{ v.rank }}</span>
+                <div class="verify-rec-balls">
+                    {% for ball in v.red_balls %}
+                    <span class="s-ball-sm s-ball-r-sm">{{ "%02d"|format(ball) }}</span>
+                    {% endfor %}
+                    <span class="s-plus-sm">+</span>
+                    <span class="s-ball-sm s-ball-b-sm">{{ "%02d"|format(v.blue_ball) }}</span>
+                </div>
+                <span class="verify-rec-strategy">{{ v.strategy }}</span>
+                <span class="verify-rec-score">分数 {{ v.total_score }}</span>
+                {% if v.best_prize.level > 0 %}
+                <span class="verify-rec-best-tag prize-win">{{ v.best_prize.name }}</span>
+                {% else %}
+                <span class="verify-rec-best-tag prize-lose">未中奖</span>
+                {% endif %}
+            </div>
+            <div class="verify-rec-stats">
+                <span>红球命中 <b>{{ v.avg_red_match }}</b></span>
+                <span>偏差 <b class="val-green">{{ v.avg_dev_score }}</b></span>
+            </div>
+            <!-- 奖级频次统计 -->
+            {% if v.prize_counts %}
+            <div class="verify-rec-prize-bar">
+                {% for name, count in v.prize_counts.items() %}
+                <span class="verify-prize-tag {% if name == '未中奖' %}tag-lose{% else %}tag-win{% endif %}">
+                    {{ name }} {{ count }}次
+                </span>
+                {% endfor %}
+            </div>
+            {% endif %}
+            <!-- 逐期奖级详情 -->
+            <div class="verify-rec-hits">
+                {% for h in v.hits_detail %}
+                <div class="verify-rec-hit-row">
+                    <span class="verify-hit-period">{{ h.period }}期</span>
+                    <span class="verify-hit-match">红{{ h.red_match }} {% if h.blue_match %}+蓝中{% else %}+蓝未中{% endif %}</span>
+                    <span class="verify-hit-dev">{{ h.dev_score }}</span>
+                    <span class="verify-hit-prize {% if h.prize.level > 0 %}prize-win{% else %}prize-lose{% endif %}">
+                        {% if h.prize.level > 0 %}{{ h.prize.name }}{% else %}未中奖{% endif %}
+                    </span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

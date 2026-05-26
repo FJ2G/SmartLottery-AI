@@ -71,6 +71,11 @@ def _do_update_year():
         console.print("[red]请输入有效年份[/red]")
 
 
+def _do_update_all():
+    from main import cmd_update_all
+    cmd_update_all()
+
+
 def _do_stats():
     from main import cmd_stats
     cmd_stats()
@@ -270,6 +275,7 @@ MENU_ITEMS: List[MenuItem] = [
         children=[
             MenuItem(key="1.1", label="更新最新一期", action=_do_update_latest),
             MenuItem(key="1.2", label="补充某年数据", action=_do_update_year),
+            MenuItem(key="1.3", label="全量刷新历史数据", action=_do_update_all),
             MenuItem(key="1.3", label="查看数据库统计", action=_do_stats),
             MenuItem(key="1.4", label="清空数据库", action=_do_clear),
         ],

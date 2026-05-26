@@ -31,9 +31,9 @@ def _print_record(record: SSQRecord) -> None:
 
 
 def cmd_update_latest():
-    """抓取并保存最新一期数据"""
+    """智能刷新：抓取最新一期 + 补齐当前年份缺失数据"""
     dm = DataManager()
-    status, record = dm.update_latest()
+    status, record, year_filled = dm.update_recent()
     if status == 1:
         console.print("[green]已保存最新一期:[/green]")
         _print_record(record)
@@ -42,6 +42,9 @@ def cmd_update_latest():
         _print_record(record)
     else:
         console.print("[red]抓取失败，请检查网络或稍后重试。[/red]")
+
+    if year_filled > 0:
+        console.print(f"[green]并已补齐当前年份 {year_filled} 条缺失数据[/green]")
 
 
 def cmd_update_year(year: int):
@@ -53,6 +56,18 @@ def cmd_update_year(year: int):
         on_skip=lambda r: console.print(f"  [dim][=] {r.period} 已存在[/dim]"),
     )
     console.print(f"[green]新增 {inserted} 条记录。[/green]")
+
+
+def cmd_update_all():
+    """全量拉取历史数据（2003年至今）"""
+    dm = DataManager()
+    before = dm.count()
+    console.print(f"[dim]当前数据库: {before} 条记录，开始全量刷新...[/dim]")
+    inserted = dm.update_all(
+        on_insert=lambda r: _print_record(r),
+    )
+    after = dm.count()
+    console.print(f"[green]全量刷新完成，新增 {inserted} 条，数据库共 {after} 条记录。[/green]")
 
 
 def cmd_stats():
@@ -556,12 +571,22 @@ def _ensure_data(dm: DataManager, min_records: int = 100, year: int | None = Non
     return updated
 
 
-def cmd_serve(host: str = "127.0.0.1", port: int = 8080):
+def cmd_serve(host: str = "0.0.0.0", port: int = 8080):
     """启动 Web 网站服务。"""
     import uvicorn
     from web import app
 
     console.print(f"[green]启动 Web 服务: http://{host}:{port}[/green]")
+    if host == "0.0.0.0":
+        import socket
+        try:
+            s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            s.connect(("8.8.8.8", 80))
+            local_ip = s.getsockname()[0]
+            s.close()
+        except Exception:
+            local_ip = "<本机局域网IP>"
+        console.print(f"[cyan]局域网访问: http://{local_ip}:{port}[/cyan]")
     console.print(f"[dim]按 Ctrl+C 停止服务[/dim]")
     uvicorn.run(
         app,
@@ -715,6 +740,7 @@ if __name__ == "__main__":
     p_query.add_argument("date", help="开奖日期，格式 YYYY-MM-DD，如 2026-04-02")
     p_year = sub.add_parser("update-year", help="补充某年数据")
     p_year.add_argument("year", type=int)
+    sub.add_parser("update-all", help="全量刷新历史数据（2003年至今）")
     p_stat = sub.add_parser("stat", help="基础统计分析（频率/奇偶/大小/区间/连号）")
     p_stat.add_argument("-n", type=int, default=100, help="分析最近 N 期，默认 100")
     p_stat.add_argument("--year", type=int, default=None, help="按年份过滤")
@@ -762,7 +788,7 @@ if __name__ == "__main__":
     p_export.add_argument("-g", "--generate", type=int, default=10, help="生成推荐组数（用于 recommend）")
     p_export.add_argument("--year", type=int, default=None, help="按年份过滤")
     p_serve = sub.add_parser("serve", help="启动 Web 网站")
-    p_serve.add_argument("--host", type=str, default="127.0.0.1", help="监听地址，默认 127.0.0.1")
+    p_serve.add_argument("--host", type=str, default="0.0.0.0", help="监听地址，默认 0.0.0.0（局域网可访问）")
     p_serve.add_argument("--port", "-p", type=int, default=8080, help="监听端口，默认 8080")
 
     args = parser.parse_args()
@@ -779,6 +805,8 @@ if __name__ == "__main__":
         cmd_query(args.date)
     elif args.cmd == "update-year":
         cmd_update_year(args.year)
+    elif args.cmd == "update-all":
+        cmd_update_all()
     elif args.cmd == "stat":
         cmd_stat(args.n, args.year)
     elif args.cmd == "freq":

@@ -5,130 +5,159 @@
 {% block head %}{% endblock %}
 
 {% block content %}
-
-<!-- ═══════════════════════════════════════════════════
-     HERO — 紧凑标题 + 最新开奖
-══════════════════════════════════════════════════════════ -->
-<section class="s s-hero">
-    <div class="s-hero-text">
-        <h1 class="s-hero-title">Smart<br>Lottery<span class="s-accent">AI</span></h1>
-        <div class="s-hero-sub">双色球 · 智能数据分析</div>
-        <div class="s-hero-tagline">把每一次选号，变成一次有数据支撑的理性决策</div>
-        <div style="margin-top:1.5rem;">
-            <button class="s-btn s-btn-white" id="refreshBtn" onclick="refreshData()">↻ 刷新数据</button>
-            <span id="refreshStatus" style="font-size:0.72rem; color:var(--dim); margin-left:0.8rem; display:none;"></span>
+<!-- Hero Section — Left-aligned with number buttons on right -->
+<div class="hero">
+    <div class="hero-left">
+        <div class="hero-logo">
+            <span class="logo-smart">Smart </span><span class="logo-ai">LotteryAI</span>
         </div>
+        {% if latest %}
+        <div class="hero-sub">
+            <span class="rank-badge">第{{ latest.period }}期 · 智能预测</span>
+        </div>
+        {% else %}
+        <div class="hero-sub">
+            <span class="rank-badge">智能预测</span>
+        </div>
+        {% endif %}
+        <div class="hero-tagline">
+            洞察<span class="arrow">→</span>趋势，策略<span class="arrow">→</span><span class="highlight">智能推荐与概率分析</span>
+        </div>
+        <a href="/recommend" class="hero-btn">立即体验 →</a>
     </div>
-    <div class="s-hero-bottom">
-        <div class="s-ball-row" id="latestBalls">
-            {% if latest and latest.red_balls %}
-                {% for ball in latest.red_balls %}
-                <span class="s-ball s-ball-r">{{ "%02d"|format(ball) }}</span>
-                {% endfor %}
-                <span class="s-plus">+</span>
-                <span class="s-ball s-ball-b">{{ "%02d"|format(latest.blue_ball) }}</span>
-            {% else %}
-                <span style="color:var(--dim);font-size:0.82rem;">暂无数据，请点击刷新</span>
-            {% endif %}
-        </div>
-        <div class="s-hero-ball-info">
-            <span class="s-hero-ball-range" id="latestPeriod">{{ latest.period if latest else '—' }} 期</span>
-            <span class="s-hero-ball-range" id="latestDate" style="font-size:0.65rem; font-weight:400;">{{ latest.draw_date if latest else '' }}</span>
-        </div>
+
+    <!-- Number preview — right side -->
+    {% if latest and latest.red_balls %}
+    <div class="hero-right">
+        {% for ball in latest.red_balls %}
+        <span class="hero-number-btn red">{{ "%02d"|format(ball) }}</span>
+        {% endfor %}
+        <span class="hero-number-btn blue">{{ "%02d"|format(latest.blue_ball) }}</span>
     </div>
-</section>
-
-<!-- ═══════════════════════════════════════════════════
-     CARD GRID — 2 columns
-══════════════════════════════════════════════════════════ -->
-<div class="card-grid">
-
-    <!-- Card: 历史记录 -->
-    <a href="/records" class="card">
-        <div class="card-num">全量</div>
-        <div class="card-title">历史记录</div>
-        <div class="card-meta">
-            {% if latest %}
-            <span>2003 — {{ latest.draw_date.year }}</span>
-            <span>{{ latest.period }} 期</span>
-            {% endif %}
-        </div>
-        <div class="card-tags">
-            <span class="card-tag">浏览全部 →</span>
-        </div>
-    </a>
-
-    <!-- Card: 统计分析 -->
-    <a href="/stats" class="card">
-        <div class="card-num" style="color:#e82127;">多维</div>
-        <div class="card-title">统计分析</div>
-        <div class="card-meta">
-            {% if s_data %}
-            <span>{{ s_data.total }} 期分析</span>
-            <span>奇偶 {{ "%.0f"|format(s_data.odd_pct) }}%</span>
-            {% else %}
-            <span>趋势洞察</span>
-            {% endif %}
-        </div>
-        <div class="card-tags">
-            <span class="card-tag">查看图表 →</span>
-        </div>
-    </a>
-
-    <!-- Card: 智能选号 -->
-    <a href="/recommend" class="card">
-        <div class="card-num" style="color:#2563eb;">智能</div>
-        <div class="card-title">选号推荐</div>
-        <div class="card-meta">
-            <span>热号 · 遗漏</span>
-            <span>共现 · 聚类</span>
-        </div>
-        <div class="card-tags">
-            <span class="card-tag">开始推荐 →</span>
-        </div>
-    </a>
-
-    <!-- Card: 关于 -->
-    <a href="/about" class="card">
-        <div class="card-num" style="color:#6b7280;">概览</div>
-        <div class="card-title">关于</div>
-        <div class="card-meta">
-            <span>项目介绍</span>
-            <span>使用说明</span>
-        </div>
-        <div class="card-tags">
-            <span class="card-tag">了解更多 →</span>
-        </div>
-    </a>
-
+    {% endif %}
 </div>
 
-<div class="disclaimer">
-    本工具仅供数据分析与趋势研究之用，不构成任何投注建议。彩票中奖为随机事件，历史数据分析不能预测未来结果。理性购彩，量力而行。
+<!-- Data refresh controls — top of page -->
+<div class="refresh-top-bar">
+    <button class="btn btn-dark" id="refreshBtn" onclick="refreshData()">↻ 刷新最新</button>
+    <button class="btn btn-dark" id="refreshAllBtn" onclick="refreshAllData()">全量刷新</button>
+    <span class="refresh-status" id="refreshStatus"></span>
+</div>
+
+<!-- Feature Cards — 4 sections matching design -->
+<div class="feature-grid">
+    <!-- 全量 · 历史记录 -->
+    <div class="feature-card">
+        <div class="feature-card-accent red">全量</div>
+        <div class="feature-card-sub">历史记录</div>
+        <div class="feature-card-details">
+            总期 — <span class="data-val">{{ total_records if total_records else '—' }}</span><br>
+            开奖号 — <span class="data-val">{{ total_records if total_records else '—' }} 期</span>
+        </div>
+        <a href="/records" class="feature-card-btn">查看全部 →</a>
+    </div>
+
+    <!-- 多维 · 统计分析 -->
+    <div class="feature-card">
+        <div class="feature-card-accent cyan">多维</div>
+        <div class="feature-card-sub">统计分析</div>
+        <div class="feature-card-details">
+            {% if s_data %}
+            X{{ s_data.total }} 数据<br>
+            奇偶比 <span class="data-val">{{ "%.0f"|format(s_data.odd_pct) }}%/{{ "%.0f"|format(s_data.even_pct) }}%</span>
+            {% else %}
+            X10 2023年<br>
+            数据 20万
+            {% endif %}
+        </div>
+        <a href="/stats" class="feature-card-btn">查看报告 →</a>
+    </div>
+
+    <!-- 智能 · 选号推荐 -->
+    <div class="feature-card">
+        <div class="feature-card-accent green">智能</div>
+        <div class="feature-card-sub">选号推荐</div>
+        <div class="feature-card-details">
+            推荐：<span class="data-val">高值策略</span><br>
+            实战：<span class="data-val">多维混合</span>
+        </div>
+        <a href="/recommend" class="feature-card-btn">详细推荐 →</a>
+    </div>
+
+    <!-- 概览 · 关于 -->
+    <div class="feature-card">
+        <div class="feature-card-accent cyan">概览</div>
+        <div class="feature-card-sub">关于</div>
+        <div class="feature-card-details">
+            我们分组<br>
+            数据来源与技术栈
+        </div>
+        <a href="/about" class="feature-card-btn">了解详情 →</a>
+    </div>
+
+    <!-- 验证 · 号码比对 -->
+    <div class="feature-card">
+        <div class="feature-card-accent green">验证</div>
+        <div class="feature-card-sub">号码比对</div>
+        <div class="feature-card-details">
+            中奖比对<br>
+            偏差概率 · 推荐验证
+        </div>
+        <a href="/verify" class="feature-card-btn">开始验证 →</a>
+    </div>
+</div>
+
+<!-- Recent Records Section -->
+<div class="home-wrap">
+    <div class="home-section-title">近期开奖</div>
+    <div class="card">
+        {% if recent_records %}
+            {% for r in recent_records %}
+            <div class="record-item">
+                <div class="record-info">
+                    <span class="record-period-text">{{ r.period }}期</span>
+                    <span class="record-date-text">{{ r.draw_date }}</span>
+                </div>
+                <div class="record-balls-row">
+                    {% for ball in r.red_balls %}
+                    <span class="s-ball-sm s-ball-r-sm">{{ "%02d"|format(ball) }}</span>
+                    {% endfor %}
+                    <span class="s-plus-sm">+</span>
+                    <span class="s-ball-sm s-ball-b-sm">{{ "%02d"|format(r.blue_ball) }}</span>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div style="font-size:0.78rem;color:var(--text3);padding:0.5rem 0;">暂无数据</div>
+        {% endif %}
+    </div>
 </div>
 
 <script>
 async function refreshData() {
-    const btn = document.getElementById('refreshBtn');
-    const status = document.getElementById('refreshStatus');
+    var btn = document.getElementById('refreshBtn');
+    var status = document.getElementById('refreshStatus');
     btn.disabled = true;
     btn.textContent = '刷新中...';
-    status.style.display = 'inline';
-    status.textContent = '正在从网络获取最新数据...';
+    status.textContent = '同步中...';
 
     try {
-        const res = await fetch('/api/update', { method: 'POST' });
-        const data = await res.json();
+        var res = await fetch('/api/update', { method: 'POST' });
+        var data = await res.json();
 
         if (data.ok) {
-            const ballsEl = document.getElementById('latestBalls');
-            ballsEl.innerHTML = data.red_balls.map(b =>
-                `<span class="s-ball s-ball-r">${String(b).padStart(2, '0')}</span>`
-            ).join('') + '<span class="s-plus">+</span>' +
-                `<span class="s-ball s-ball-b">${String(data.blue_ball).padStart(2, '0')}</span>`;
-            document.getElementById('latestPeriod').textContent = data.period + ' 期';
-            document.getElementById('latestDate').textContent = data.draw_date;
-            status.textContent = '✓ 已更新到 ' + data.period + ' 期';
+            // Update hero numbers
+            var heroRight = document.querySelector('.hero-right');
+            if (heroRight) {
+                heroRight.innerHTML = data.red_balls.map(function(b) {
+                    return '<span class="hero-number-btn red">' + String(b).padStart(2, '0') + '</span>';
+                }).join('') + '<span class="hero-number-btn blue">' + String(data.blue_ball).padStart(2, '0') + '</span>';
+            }
+            // Update rank badge
+            var rankBadge = document.querySelector('.rank-badge');
+            if (rankBadge) rankBadge.textContent = '第' + data.period + '期 · 智能预测';
+            status.textContent = '✓ 已更新到 ' + data.period + '期';
+            setTimeout(function() { location.reload(); }, 1500);
         } else {
             status.textContent = '✗ ' + (data.error || '更新失败');
         }
@@ -137,8 +166,71 @@ async function refreshData() {
     }
 
     btn.disabled = false;
-    btn.textContent = '↻ 刷新数据';
-    setTimeout(() => { status.style.display = 'none'; }, 4000);
+    btn.textContent = '↻ 刷新最新';
+    setTimeout(function() { status.textContent = ''; }, 5000);
+}
+
+var _updateAllTimer = null;
+
+async function refreshAllData() {
+    var btn = document.getElementById('refreshAllBtn');
+    var status = document.getElementById('refreshStatus');
+
+    if (!confirm('全量刷新将从2003年至今拉取所有历史数据，耗时较长。确认开始？')) return;
+
+    btn.disabled = true;
+    btn.textContent = '启动中...';
+    status.textContent = '正在启动全量刷新...';
+
+    try {
+        var res = await fetch('/api/update-all', { method: 'POST' });
+        var data = await res.json();
+        if (!data.ok) {
+            status.textContent = '✗ ' + (data.error || '启动失败');
+            btn.disabled = false;
+            btn.textContent = '全量刷新';
+            return;
+        }
+        btn.textContent = '刷新中...';
+        _pollUpdateAll();
+    } catch(e) {
+        status.textContent = '✗ 网络错误';
+        btn.disabled = false;
+        btn.textContent = '全量刷新';
+    }
+}
+
+function _pollUpdateAll() {
+    var btn = document.getElementById('refreshAllBtn');
+    var status = document.getElementById('refreshStatus');
+
+    _updateAllTimer = setInterval(async function() {
+        try {
+            var res = await fetch('/api/update-all/status');
+            var data = await res.json();
+            status.textContent = '全量刷新中... 已新增 ' + data.inserted + ' 条';
+
+            if (data.done) {
+                clearInterval(_updateAllTimer);
+                _updateAllTimer = null;
+                if (data.error) {
+                    status.textContent = '✗ 刷新出错: ' + data.error.substring(0, 80);
+                } else {
+                    status.textContent = '✓ 全量刷新完成，新增 ' + data.inserted + ' 条记录';
+                    setTimeout(function() { location.reload(); }, 1500);
+                }
+                btn.disabled = false;
+                btn.textContent = '全量刷新';
+                setTimeout(function() { status.textContent = ''; }, 6000);
+            }
+        } catch(e) {
+            clearInterval(_updateAllTimer);
+            _updateAllTimer = null;
+            status.textContent = '✗ 查询进度失败';
+            btn.disabled = false;
+            btn.textContent = '全量刷新';
+        }
+    }, 2000);
 }
 </script>
 

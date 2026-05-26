@@ -8,46 +8,48 @@
 <div class="page-wrap">
     <div class="page-header">
         <a href="/" class="back-link">← 返回首页</a>
-        <h1>历史记录</h1>
+        <h1><span class="hl">全量</span>历史记录</h1>
         <p>双色球全部开奖数据 · 共 {{ total }} 期</p>
     </div>
 
     <div>
         <div class="filter-bar">
-            <form method="get" action="/records" style="display:flex;gap:0.6rem;align-items:center;flex-wrap:wrap;">
-                <input type="number" name="year" value="{{ year or '' }}" placeholder="年份" min="2003" max="2030">
+            <form method="get" action="/records" style="display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap;">
+                <input type="number" name="year" value="{{ year or '' }}" placeholder="年份">
                 <input type="hidden" name="page" value="1">
-                <button type="submit" class="btn btn-primary">筛选</button>
+                <button type="submit" class="btn-primary">筛选</button>
                 {% if year %}
-                <a href="/records" class="btn btn-secondary">清除</a>
+                <a href="/records" class="btn-secondary">清除</a>
                 {% endif %}
             </form>
         </div>
 
         {% if records %}
-        <div class="record-list">
-            {% for r in records %}
-            <div class="record-row">
-                <div>
-                    <div class="record-period">{{ r.period }}</div>
-                    <div class="record-date">{{ r.draw_date }}</div>
+        <div class="card">
+            <div class="record-list">
+                {% for r in records %}
+                <div class="record-row">
+                    <div style="display:flex;flex-direction:column;gap:0.15rem;">
+                        <span style="font-size:0.75rem;font-weight:700;color:var(--text2);">{{ r.period }}期</span>
+                        <span style="font-size:0.62rem;color:var(--text3);">{{ r.draw_date }}</span>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:0.2rem;">
+                        {% for ball in r.red_balls %}
+                        <span class="s-ball-sm s-ball-r-sm">{{ "%02d"|format(ball) }}</span>
+                        {% endfor %}
+                        <span class="s-plus-sm">+</span>
+                        <span class="s-ball-sm s-ball-b-sm">{{ "%02d"|format(r.blue_ball) }}</span>
+                    </div>
                 </div>
-                <div class="record-balls">
-                    {% for ball in r.red_balls %}
-                    <span class="r-ball-sm">{{ "%02d"|format(ball) }}</span>
-                    {% endfor %}
-                    <span class="ball-plus" style="font-size:0.6rem;margin:0 1px;">+</span>
-                    <span class="b-ball-sm">{{ "%02d"|format(r.blue_ball) }}</span>
-                </div>
+                {% endfor %}
             </div>
-            {% endfor %}
         </div>
 
         <div class="pagination">
             {% if prev_page %}
-            <a href="/records?page={{ prev_page }}{% if year %}&year={{ year }}{% endif %}">‹ 上一页</a>
+            <a href="/records?page={{ prev_page }}{% if year %}&year={{ year }}{% endif %}">‹</a>
             {% else %}
-            <span class="disabled">‹ 上一页</span>
+            <span class="disabled">‹</span>
             {% endif %}
 
             {% for p in page_range %}
@@ -61,9 +63,9 @@
             {% endfor %}
 
             {% if next_page %}
-            <a href="/records?page={{ next_page }}{% if year %}&year={{ year }}{% endif %}">下一页 ›</a>
+            <a href="/records?page={{ next_page }}{% if year %}&year={{ year }}{% endif %}">›</a>
             {% else %}
-            <span class="disabled">下一页 ›</span>
+            <span class="disabled">›</span>
             {% endif %}
         </div>
         {% endif %}

@@ -1,1 +1,7 @@
 data/
+__pycache__/
+*.pyc
+.idea/
+.venv/
+*.png
+!data/charts/*.png

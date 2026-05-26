@@ -36,10 +36,11 @@ templates.env.cache = {}  # type: ignore[assignment]
 
 # ─── 注册路由 ───────────────────────────────────────────────
 
-from web.routes import home, records, stats, recommend, about
+from web.routes import home, records, stats, recommend, about, verify
 
 app.include_router(home.router)
 app.include_router(records.router)
 app.include_router(stats.router)
 app.include_router(recommend.router)
 app.include_router(about.router)
+app.include_router(verify.router)

@@ -1,9 +1,20 @@
 """主页路由 — 首页仪表盘。"""
 
+import threading
+
 from fastapi import APIRouter, Form, Request
 from fastapi.responses import HTMLResponse
 
 router = APIRouter()
+
+# ── 全量刷新后台任务状态 ─────────────────────────────────
+_update_all_state = {
+    "running": False,
+    "inserted": 0,
+    "done": False,
+    "error": None,
+}
+_update_all_lock = threading.Lock()
 
 
 def _build_context(dm):
@@ -104,23 +115,79 @@ async def about(request: Request):
 
 @router.post("/api/update")
 async def update_data():
-    """从网络抓取最新一期数据，返回最新记录。"""
+    """智能刷新：抓取最新一期 + 补齐当前年份缺失数据。"""
     from core import DataManager
     import traceback
 
     dm = DataManager()
     try:
-        count, latest = dm.update_latest()
+        status, latest, year_filled = dm.update_recent()
         if latest:
+            msg = f"已更新到 {latest.period} 期"
+            if year_filled > 0:
+                msg += f"，并补齐 {year_filled} 条历史数据"
             return {
                 "ok": True,
                 "period": latest.period,
                 "draw_date": str(latest.draw_date),
                 "red_balls": sorted(latest.red_balls),
                 "blue_ball": latest.blue_ball,
-                "inserted": count,
+                "inserted": status,
+                "year_filled": year_filled,
+                "message": msg,
             }
         else:
-            return {"ok": False, "error": "未获取到新数据，可能是已是最新的"}
+            return {"ok": False, "error": "未获取到新数据，请检查网络"}
     except Exception:
         return {"ok": False, "error": traceback.format_exc()}
+
+
+def _run_update_all():
+    """后台线程：全量拉取历史数据。"""
+    from core import DataManager
+    import traceback as _tb
+
+    dm = DataManager()
+    try:
+        def on_insert(record):
+            with _update_all_lock:
+                _update_all_state["inserted"] += 1
+
+        dm.update_all(on_insert=on_insert)
+        with _update_all_lock:
+            _update_all_state["done"] = True
+            _update_all_state["running"] = False
+    except Exception:
+        with _update_all_lock:
+            _update_all_state["error"] = _tb.format_exc()
+            _update_all_state["done"] = True
+            _update_all_state["running"] = False
+
+
+@router.post("/api/update-all")
+async def update_all_data():
+    """启动全量历史数据刷新（后台线程执行）。"""
+    with _update_all_lock:
+        if _update_all_state["running"]:
+            return {"ok": False, "error": "全量刷新正在进行中"}
+
+        _update_all_state["running"] = True
+        _update_all_state["inserted"] = 0
+        _update_all_state["done"] = False
+        _update_all_state["error"] = None
+
+    t = threading.Thread(target=_run_update_all, daemon=True)
+    t.start()
+    return {"ok": True, "message": "全量刷新已启动"}
+
+
+@router.get("/api/update-all/status")
+async def update_all_status():
+    """查询全量刷新进度。"""
+    with _update_all_lock:
+        return {
+            "running": _update_all_state["running"],
+            "inserted": _update_all_state["inserted"],
+            "done": _update_all_state["done"],
+            "error": _update_all_state["error"],
+        }

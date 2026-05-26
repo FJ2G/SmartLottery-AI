@@ -8,36 +8,36 @@
 <div class="page-wrap">
     <div class="page-header">
         <a href="/" class="back-link">← 返回首页</a>
-        <h1>选号推荐</h1>
-        <p>多策略智能生成候选号码</p>
+        <h1><span class="hl">智能</span>选号推荐</h1>
+        <p>多策略加权混合，生成高概率候选号码</p>
     </div>
 
     <div class="form-card">
         <form method="post" action="/recommend">
             <div class="form-row">
                 <label>分析期数</label>
-                <input type="number" name="n" value="{{ form_data.n if form_data else 100 }}" min="10" max="1000" style="width:120px;">
-                <span style="font-size:0.78rem;color:var(--text3);">期</span>
+                <input type="number" name="n" value="{{ form_data.n if form_data else 100 }}" min="10" max="1000" style="width:100px;">
+                <span style="font-size:0.75rem;color:var(--text3);">期</span>
             </div>
             <div class="form-row">
                 <label>候选数量</label>
-                <input type="number" name="generate" value="{{ form_data.generate if form_data else 10 }}" min="1" max="50" style="width:120px;">
-                <span style="font-size:0.78rem;color:var(--text3);">组</span>
+                <input type="number" name="generate" value="{{ form_data.generate if form_data else 10 }}" min="1" max="50" style="width:100px;">
+                <span style="font-size:0.75rem;color:var(--text3);">组</span>
             </div>
             <div class="form-row">
                 <label>生成策略</label>
-                <select name="strategy" style="min-width:180px;">
+                <select name="strategy" style="min-width:150px;">
                     <option value="">默认混合</option>
-                    <option value="heat" {% if form_data.strategy=='heat' %}selected{% endif %}>🔥 热号策略</option>
-                    <option value="overdue" {% if form_data.strategy=='overdue' %}selected{% endif %}>⏱ 遗漏策略</option>
-                    <option value="co_occur" {% if form_data.strategy=='co_occur' %}selected{% endif %}>🔗 共现策略</option>
-                    <option value="cluster" {% if form_data.strategy=='cluster' %}selected{% endif %}>🎨 相似匹配</option>
-                    <option value="mixed" {% if form_data.strategy=='mixed' %}selected{% endif %}>🎲 混合策略</option>
-                    <option value="random" {% if form_data.strategy=='random' %}selected{% endif %}>🎰 随机</option>
+                    <option value="heat" {% if form_data.strategy=='heat' %}selected{% endif %}>热号策略</option>
+                    <option value="overdue" {% if form_data.strategy=='overdue' %}selected{% endif %}>遗漏策略</option>
+                    <option value="co_occur" {% if form_data.strategy=='co_occur' %}selected{% endif %}>共现策略</option>
+                    <option value="cluster" {% if form_data.strategy=='cluster' %}selected{% endif %}>相似匹配</option>
+                    <option value="mixed" {% if form_data.strategy=='mixed' %}selected{% endif %}>混合策略</option>
+                    <option value="random" {% if form_data.strategy=='random' %}selected{% endif %}>随机</option>
                 </select>
             </div>
-            <div class="form-row" style="margin-top:0.5rem;">
-                <button type="submit" class="btn-tesla btn-red" style="padding:0.8rem 2.5rem;font-size:0.95rem;">🎲 生成推荐</button>
+            <div class="form-row" style="margin-top:0.3rem;">
+                <button type="submit" class="btn btn-cyan" style="padding:0.6rem 2rem;font-size:0.85rem;">生成推荐</button>
             </div>
         </form>
     </div>
@@ -47,21 +47,26 @@
     {% endif %}
 
     {% if results %}
-    <div class="rec-list">
-        {% for r in results %}
-        <div class="rec-row">
-            <span class="rec-rank">#{{ r.rank }}</span>
-            <div class="rec-balls-sm">
-                {% for ball in r.red_balls %}
-                <span class="r-ball-sm">{{ "%02d"|format(ball) }}</span>
-                {% endfor %}
-                <span class="ball-plus" style="font-size:0.6rem;margin:0 1px;">+</span>
-                <span class="b-ball-sm">{{ "%02d"|format(r.blue_ball) }}</span>
-            </div>
-            <span class="rec-score">{{ "%.1f"|format(r.total_score|float) }}</span>
-            <span class="rec-strategy">{{ r.strategy }}</span>
+    <div class="card">
+        <div class="card-section-header" style="margin-bottom:0.5rem;">
+            <span class="card-section-title">推荐结果</span>
         </div>
-        {% endfor %}
+        <div class="rec-list">
+            {% for r in results %}
+            <div class="rec-row">
+                <span class="rec-rank">#{{ r.rank }}</span>
+                <div class="rec-balls-sm">
+                    {% for ball in r.red_balls %}
+                    <span class="s-ball-sm s-ball-r-sm">{{ "%02d"|format(ball) }}</span>
+                    {% endfor %}
+                    <span class="s-plus-sm">+</span>
+                    <span class="s-ball-sm s-ball-b-sm">{{ "%02d"|format(r.blue_ball) }}</span>
+                </div>
+                <span class="rec-score">{{ "%.1f"|format(r.total_score|float) }}</span>
+                <span class="rec-strategy">{{ r.strategy }}</span>
+            </div>
+            {% endfor %}
+        </div>
     </div>
     <div class="info-box">
         总分 100 = 频率(25%) + 遗漏(25%) + 共现(25%) + 模式(25%)。高分组合更接近历史规律，仅供参考。

@@ -87,6 +87,33 @@ class DataManager:
         logger.info(f"新增记录: {record}")
         return 1, record
 
+    def update_recent(self) -> tuple[int, Optional[SSQRecord], int]:
+        """
+        智能刷新：抓取最新一期 + 补齐当前年份缺失数据。
+
+        适用于日常使用场景——几天未启动后，一次点击补齐所有空档。
+
+        Returns:
+            (最新期状态, 最新记录, 当前年新增总数)
+            - 最新期状态: 1=新增成功, 0=已存在, -1=抓取失败
+        """
+        # 1. 抓取最新一期
+        status, latest = self.update_latest()
+
+        # 2. 补齐当前年份缺失数据
+        current_year = date.today().year
+        year_inserted = self.update_year(
+            current_year,
+            progress=False,
+            on_insert=None,
+            on_skip=None,
+        )
+
+        if year_inserted > 0:
+            logger.info(f"已补齐 {current_year} 年缺失数据 {year_inserted} 条")
+
+        return status, latest, year_inserted
+
     def update_year(
         self,
         year: int,
@@ -111,17 +138,15 @@ class DataManager:
         for record in self.spider.fetch_year(year):
             if self.db.insert(record):
                 inserted += 1
-                if progress:
-                    if on_insert:
-                        on_insert(record)
-                    else:
-                        print(f"  [+] {record}")
+                if on_insert:
+                    on_insert(record)
+                elif progress:
+                    print(f"  [+] {record}")
             else:
-                if progress:
-                    if on_skip:
-                        on_skip(record)
-                    else:
-                        print(f"  [=] {record.period} 已存在")
+                if on_skip:
+                    on_skip(record)
+                elif progress:
+                    print(f"  [=] {record.period} 已存在")
 
         logger.info(f"{year} 年数据更新完成，新增 {inserted} 条")
         return inserted
@@ -152,36 +177,32 @@ class DataManager:
 
     def update_all(self, on_insert: callable | None = None) -> int:
         """
-        全量重拉：从最早可查年份（2003年，双色球首发）到现在。
+        全量重拉：从最早可查年份（2003年，双色球首发）到现在，逐年拉取。
 
         注意：此操作会保留数据库中已有记录，仅补充缺失数据。
+        已存在的期号会自动跳过（INSERT OR IGNORE）。
         如需强制全量重建，请先调用 clear() 再调用本方法。
 
         Returns:
             新增记录总数
         """
+        from datetime import date as _date
+
         logger.info("开始全量数据更新...")
-        latest_local = self.db.get_latest_period()
-
-        # 从2003年第001期开始
-        start = "2003001"
-        # 结束期号由爬虫从网络获取最新一期决定
+        current_year = _date.today().year
         inserted = 0
+        _no_op = lambda r: None
 
-        for record in self.spider.fetch_range(start, "2030000"):
-            if self.db.insert(record):
-                inserted += 1
-                if on_insert:
-                    on_insert(record)
-                else:
-                    print(f"  [+] {record}")
-            else:
-                print(f"  [=] {record.period} 已存在")
-
-            # 一旦超过本地最新期号，跳出（避免重复抓取已存在数据）
-            if latest_local and record.period == latest_local:
-                logger.info(f"已追到本地最新期 {latest_local}，停止")
-                break
+        for year in range(2003, current_year + 1):
+            logger.info(f"正在拉取 {year} 年数据...")
+            count = self.update_year(
+                year,
+                progress=False,
+                on_insert=on_insert,
+                on_skip=_no_op,
+            )
+            inserted += count
+            logger.info(f"{year} 年完成，新增 {count} 条")
 
         logger.info(f"全量更新完成，共新增 {inserted} 条记录")
         return inserted

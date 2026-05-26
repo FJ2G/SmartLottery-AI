@@ -109,7 +109,7 @@ python main.py list -n 30
 ## 常用命令一览
 
 | 命令 | 说明 |
-|------|------|
+|-----|------|
 | `python main.py stats` | 查看数据库记录总数与最新一期 |
 | `python main.py update-latest` | 抓取最新一期开奖数据 |
 | `python main.py update-year <年份>` | 补充指定年份所有期次数据 |
@@ -139,7 +139,9 @@ python main.py list -n 30
 | `python main.py export --type records --format json` | 导出历史记录为 JSON |
 | `python main.py export --type stats --format csv -n 100` | 导出统计报告为 CSV |
 | `python main.py export --type recommend --format json -g 10` | 导出推荐结果为 JSON |
-| `python main.py serve --port 8080` | 启动 Web 网站（浏览器访问）|
+| `python main.py serve` | 启动 Web 网站（局域网可访问，默认 8080 端口）|
+| `python main.py serve --port 9090` | 启动 Web 网站（指定端口）|
+| `python main.py serve --host 127.0.0.1` | 启动 Web 网站（仅本机访问）|
 
 ---
 
@@ -170,11 +172,21 @@ SmartLottery-AI/
 ## 第七步：启动 Web 网站
 
 ```bash
-# 启动 Web 网站（默认端口 8080）
-python main.py serve --port 8080
+# 启动 Web 网站（默认监听 0.0.0.0:8080，局域网可访问）
+python main.py serve
+
+# 指定端口
+python main.py serve --port 9090
+
+# 仅本机访问
+python main.py serve --host 127.0.0.1
 ```
 
-启动后在浏览器打开 `http://localhost:8080`，即可访问：
+启动后会显示本机IP和局域网访问地址，例如：
+- **本机访问**: `http://localhost:8080`
+- **局域网访问**: `http://192.168.x.x:8080`（手机/其他电脑，需在同一局域网）
+
+即可访问：
 - **首页**：功能导航
 - **历史记录**：分页浏览开奖数据
 - **统计分析**：内嵌图表（频率、奇偶、大小、区间分布）
